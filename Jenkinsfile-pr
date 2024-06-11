@@ -14,6 +14,18 @@ pipeline {
             }
         }
 
+        stage('Install semantic-release') {
+            steps {
+                sh '''
+                mkdir temp_semantic_release
+                cd temp_semantic_release
+                npm init -y
+                npm install semantic-release @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/changelog @semantic-release/github @semantic-release/git
+                '''
+            }
+        }
+
+
         stage('Validate Commit Message') {
             steps {
                 script {
@@ -24,7 +36,10 @@ pipeline {
                     def conventionalCommitPattern = /^((feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|merge|BREAKING CHANGE)(\(\w+\))?: .{1,50})/
 
                     // def version = sh(script: 'npx semantic-release --dry-run', returnStdout: true).split('\n').find { it.contains('The next release version is') }.split(' ').last().trim()
-                    sh 'npx semantic-release --dry-run'
+                    sh '''
+                    cd temp_semantic_release
+                    npx semantic-release --dry-run
+                    '''
 
                     if (!commitMessage.matches(conventionalCommitPattern)) {
                         error("Commit message does not follow Conventional Commit format: ${commitMessage}")
