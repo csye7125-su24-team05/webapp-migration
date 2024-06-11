@@ -23,7 +23,8 @@ pipeline {
 
                     def conventionalCommitPattern = /^((feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|merge|BREAKING CHANGE)(\(\w+\))?: .{1,50})/
 
-                    def version = sh(script: 'npx semantic-release --dry-run', returnStdout: true).split('\n').find { it.contains('The next release version is') }.split(' ').last().trim()
+                    // def version = sh(script: 'npx semantic-release --dry-run', returnStdout: true).split('\n').find { it.contains('The next release version is') }.split(' ').last().trim()
+                    sh 'npx semantic-release --dry-run'
 
                     if (!commitMessage.matches(conventionalCommitPattern)) {
                         error("Commit message does not follow Conventional Commit format: ${commitMessage}")
