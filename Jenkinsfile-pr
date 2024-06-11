@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_IMAGE = 'nexflare73/jenkinscheck'
+        CURRENT_VERSION = currentVersion()
+        NEXT_VERSION = nextVersion()
+        GITHUB_API_URL = 'https://api.github.com'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "Current version is ${CURRENT_VERSION}"
+                echo "Next version is ${NEXT_VERSION}"
+            }
+        }
+
+        stage('Validate Commit Message') {
+            steps {
+                script {
+                    def commitMessage = getCommitMessage()
+
+                    echo "Commit message from getCommitMessage is : ${commitMessage}"
+
+                    def conventionalCommitPattern = /^((feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert|merge|BREAKING CHANGE)(\(\w+\))?: .{1,50})/
+
+                    def version = sh(script: 'npx semantic-release --dry-run', returnStdout: true).split('\n').find { it.contains('The next release version is') }.split(' ').last().trim()
+
+                    if (!commitMessage.matches(conventionalCommitPattern)) {
+                        error("Commit message does not follow Conventional Commit format: ${commitMessage}")
+                    } else {
+                        echo "Commit message is valid: ${commitMessage}"
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            // Cleanup
+            cleanWs()
+        }
+    }
+}
+
+// Groovy class for generating random strings
+class RandomStringGenerator {
+    static String generate(int length, List charset) {
+        def random = new Random()
+        return (1..length).collect { charset[random.nextInt(charset.size())] }.join('')
+    }
+}
+
+
+def getCommitMessage() {
+    def commitMessage = sh(
+        script: "git log -1 --pretty=%B",
+        returnStdout: true
+    ).trim()
+    return commitMessage
+}
