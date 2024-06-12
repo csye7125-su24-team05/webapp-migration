@@ -4,7 +4,7 @@ CREATE TABLE cve.cve_records (
     id SERIAL PRIMARY KEY,
     cve_id VARCHAR(255) NOT NULL,
     cve_data JSONB NOT NULL,
-    version INT NOT NULL,
+    version VARCHAR(255) NOT NULL,
     timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(cve_id, version)
 );
