@@ -5,15 +5,6 @@ pipeline {
         RANDOM_STRING = ''
     }
     stages {
-        stage('Checkout') {
-            steps {
-                // Checkout code from the main branch
-                git branch: 'main', url: 'https://github.com/csye7125-su24-team05/webapp-migration', credentialsId: 'github-credentials'
-            }
-        }
-
-
-
         stage('Docker Init') {
             steps {
                 script {

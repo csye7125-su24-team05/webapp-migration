@@ -1,27 +1,11 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:alpine'
-            args '-u root'
-        }
-    }
- 
+    agent any
+
     stages {
-        stage('init') {
-            steps {
-                sh '''
-                    apk update && apk add git
-                    npm install --save-dev @commitlint/config-conventional @commitlint/cli
-                    git config --global --add safe.directory $PWD
-                    echo 'module.exports = {extends: ["@commitlint/config-conventional"]};' > commitlint.config.js
-                '''
-            }
-        }
- 
         stage('Validate Commit Message') {
             steps {
                 script {
-                    sh 'git log -1 --pretty=%B | npx commitlint --verbose'
+                    sh 'git log -1 --pretty=%B | npx commitlint --verbose --config /etc/jenkins/commitlint.config.js'
                 }
             }
         }
